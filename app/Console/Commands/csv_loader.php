@@ -4,6 +4,9 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Supplier;
+use App\Models\Condition;
+use App\Models\Category;
+use App\Models\Supply;
 
 class csv_loader extends Command
 {
@@ -52,18 +55,22 @@ class csv_loader extends Command
             // Proverava da li postoji prazna linija u .csv-u
             if(empty($row[0])) continue;
 
-            // Prikupljamo i upisujemo podatke u bazu podataka
+            // Upisujemo podatke u bazu podataka
             list($supplier_name, $days_valid, $priority, $part_number, $part_desc, $quantity, $price, $condition, $category) = $row;
-                Supplier::create([
-                    'supplier_name' => $supplier_name,
+                $supplier_id = Supplier::firstOrCreate(['name' => $supplier_name]);
+                $condition_id = Condition::firstOrCreate(['name' => $condition]);
+                $category_id = Category::firstOrCreate(['name' => $category]);
+
+                Supply::create([
+                    'supplier_id' => $supplier_id->id,
                     'days_valid' => $days_valid,
                     'priority' => $priority,
                     'part_number' => $part_number,
                     'part_desc' => $part_desc,
                     'quantity' => $quantity,
                     'price' => $price,
-                    'condition' => $condition,
-                    'category' => $category,
+                    'condition_id' => $condition_id->id,
+                    'category_id' => $category_id->id,
                 ]);
             }
 
