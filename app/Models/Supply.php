@@ -20,4 +20,5 @@ class Supply extends Model
         'condition_id',
         'category_id'
     ];
+
 }

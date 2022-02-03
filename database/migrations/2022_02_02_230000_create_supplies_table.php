@@ -15,15 +15,15 @@ class CreateSuppliesTable extends Migration
     {
         Schema::create('supplies', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('supplier_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
             $table->integer('days_valid');
             $table->integer('priority');
             $table->string('part_number');
             $table->string('part_desc');
             $table->string('quantity');
             $table->decimal('price');
-            $table->foreignId('condition_id')->constrained()->onDelete('cascade');
-            $table->foreignId('category_id')->constrained()->onDelete('cascade');
+            $table->foreignId('condition_id')->constrained();
+            $table->foreignId('category_id')->constrained();
             $table->timestamps();
         });
     }

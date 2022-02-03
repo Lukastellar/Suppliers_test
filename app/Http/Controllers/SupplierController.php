@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Supplier;
 
 class SupplierController extends Controller
 {
@@ -13,7 +14,13 @@ class SupplierController extends Controller
      */
     public function index()
     {
+        $suppliers = Supplier::all();
+        $data = ['suppliers' => []];
 
+        foreach ($suppliers as $key => $supplier) {
+            array_push($data['suppliers'], $supplier->name );
+        }
+        return response()->json($data);
     }
 
     /**
@@ -64,11 +71,21 @@ class SupplierController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param  string  $name
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id, $name)
     {
-        //
+        $supplier = Supplier::find($id);
+
+        if($supplier){
+            $supplier->update(['name' => $name]);
+        } else {
+            return response()->json([
+                'error' => 'Zeljeni dostavljac ne postoji u nasoj bazi.'
+            ]);
+        }
+
     }
 
     /**
@@ -79,6 +96,6 @@ class SupplierController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $data = Supplier::find($id)->delete();
     }
 }
