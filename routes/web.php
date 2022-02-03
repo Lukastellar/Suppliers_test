@@ -15,7 +15,7 @@ use App\Http\Controllers\SupplyController;
 |
 */
 
-Route::group(['prefix' => 'api'], function(){
+Route::group(['prefix' => 'supplier'], function(){
 
     // * - Prikazivanje svih Dobavljača
     Route::get('/index ', [SupplierController::class, 'index']);
@@ -27,7 +27,19 @@ Route::group(['prefix' => 'api'], function(){
     Route::get('/destroy/{id}', [SupplierController::class, 'destroy']);
 });
 
-   // * - prikazivanje svih proizvoda
-   // * - prikazivanje svih proizvoda koje poseduje određeni Dobavljač
-   // * - izmena proizvoda
-   // * - brisanje proizvoda
+Route::group(['prefix' => 'product'], function(){
+
+    // * - prikazivanje svih proizvoda
+    Route::get('/index', [SupplyController::class, 'index']);
+
+    // * - prikazivanje svih proizvoda koje poseduje određeni Dobavljač
+    // Parametar moze biti ID ili name supplier-a
+    Route::get('/show/{search}', [SupplyController::class, 'show']);
+
+    // * - izmena proizvoda
+    // Može se upisati više column_name-ova u formi /update/{id}?{column_name=value}&...
+    Route::get('/update/{id}', [SupplyController::class, 'update']);
+
+    // * - brisanje proizvoda
+    Route::get('/destroy/{id}', [SupplyController::class, 'destroy']);
+});

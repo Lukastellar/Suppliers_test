@@ -85,7 +85,6 @@ class SupplierController extends Controller
                 'error' => 'Zeljeni dostavljac ne postoji u nasoj bazi.'
             ]);
         }
-
     }
 
     /**
@@ -96,6 +95,6 @@ class SupplierController extends Controller
      */
     public function destroy($id)
     {
-        $data = Supplier::find($id)->delete();
+        Supplier::find($id)->delete();
     }
 }
