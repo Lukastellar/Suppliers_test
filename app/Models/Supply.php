@@ -21,4 +21,11 @@ class Supply extends Model
         'category_id'
     ];
 
+    public function condition(){
+        return $this->hasOne(Condition::class,'id','condition_id')->select(['id', 'name']);
+    }
+
+    public function category(){
+        return $this->hasOne(Category::class,'id','category_id')->select(['id', 'name']);
+    }
 }

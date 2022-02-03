@@ -42,4 +42,8 @@ Route::group(['prefix' => 'product'], function(){
 
     // * - brisanje proizvoda
     Route::get('/destroy/{id}', [SupplyController::class, 'destroy']);
+
+    //CSV Generator
+    Route::get('/generate/{search}', [SupplyController::class, 'generateCSV']);
 });
+

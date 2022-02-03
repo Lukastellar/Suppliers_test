@@ -7,7 +7,6 @@ use App\Models\Condition;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use App\Models\Supply;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Schema;
 
 class SupplyController extends Controller
@@ -110,13 +109,83 @@ class SupplyController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     *
+
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
         Supply::find($id)->delete();
+    }
+
+    public function generateCSV($search){
+        date_default_timezone_set('Europe/Belgrade');
+
+        $data = Supplier::where('id', 'LIKE', "%{$search}%")
+            ->orWhere('name', 'LIKE', "%{$search}%")
+            ->first();
+
+        // Return if supplier not found
+        if(!$data){
+            return json_encode(['msg' => 'Entered supplier does not exist.']);
+        }
+
+        // Make file name
+        $current_date = date('_Y_m_d_H_i_s');
+        $supplier_name = preg_replace('/\s+/', '_', $data->name);
+        $filename = $supplier_name.$current_date.'.csv';
+
+        // Header
+        $headers = array(
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$filename",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        );
+
+        $columns = array('days_valid', 'priority', 'part_number', 'part_desc', 'quantity',
+            'price', 'condition', 'category');
+
+        // Format data
+        $data = $data->supplies;
+
+
+        $columns = array_flip(['days_valid', 'priority', 'part_number', 'part_desc', 'quantity',
+            'price', 'condition', 'category']);
+
+        ///////////// Open file ////////////////
+        $callback = function() use ($filename, $data) {
+        $file = fopen('php://output', 'w');
+
+        // Throw error
+        if ($file === false) { return json_encode(['msg' => 'Error opening file'.$filename]); }
+
+        // Create header
+        $csv_header = ['days_valid', 'priority', 'part_number', 'part_desc', 'quantity', 'price', 'condition', 'category'];
+        fputcsv($file, $csv_header);
+
+        // Columns
+        $columns = ['days_valid', 'priority', 'part_number', 'part_desc', 'quantity', 'price', 'condition', 'category'];
+
+        // Create rows
+        foreach ($data as $query) {
+            $columns[0] = $query->days_valid;
+            $columns[1] = $query->priority;
+            $columns[2] = $query->part_number;
+            $columns[3] = $query->part_desc;
+            $columns[4] = $query->quantity;
+            $columns[5] = $query->price;
+            $columns[6] = $query->condition->name;
+            $columns[7] = $query->category->name;
+
+            fputcsv($file, $columns);
+        }
+        // Close file
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }
 
