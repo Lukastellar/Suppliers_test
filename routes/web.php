@@ -15,10 +15,10 @@ use App\Http\Controllers\SupplyController;
 |
 */
 
-Route::group(['prefix' => 'supplier'], function(){
+Route::group(['prefix' => 'suppliers'], function(){
 
     // * - Prikazivanje svih Dobavljača
-    Route::get('/index ', [SupplierController::class, 'index']);
+    Route::get('/index', [SupplierController::class, 'index']);
 
     // * - Izmena naziva Dobavljača
     Route::get('/update/{id}/{name}', [SupplierController::class, 'update']);
@@ -27,7 +27,7 @@ Route::group(['prefix' => 'supplier'], function(){
     Route::get('/destroy/{id}', [SupplierController::class, 'destroy']);
 });
 
-Route::group(['prefix' => 'product'], function(){
+Route::group(['prefix' => 'products'], function(){
 
     // * - prikazivanje svih proizvoda
     Route::get('/index', [SupplyController::class, 'index']);
@@ -37,13 +37,14 @@ Route::group(['prefix' => 'product'], function(){
     Route::get('/show/{search}', [SupplyController::class, 'show']);
 
     // * - izmena proizvoda
-    // Može se upisati više column_name-ova u formi /update/{id}?{column_name=value}&...
+    // Form: /update/{id}?{column_name=value}&... ;
     Route::get('/update/{id}', [SupplyController::class, 'update']);
 
     // * - brisanje proizvoda
     Route::get('/destroy/{id}', [SupplyController::class, 'destroy']);
 
-    //CSV Generator
+    // * - CSV Generator
+    // Params: id, name
     Route::get('/generate/{search}', [SupplyController::class, 'generateCSV']);
 });
 

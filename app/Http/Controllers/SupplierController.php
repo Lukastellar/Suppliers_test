@@ -16,10 +16,10 @@ class SupplierController extends Controller
     {
         $suppliers = Supplier::all();
         $data = ['suppliers' => []];
-
-        foreach ($suppliers as $key => $supplier) {
-            array_push($data['suppliers'], $supplier->name );
+        foreach ($suppliers as $supplier) {
+            array_push($data['suppliers'], ['id' => $supplier->id, 'name' => $supplier->name] );
         }
+
         return response()->json($data);
     }
 

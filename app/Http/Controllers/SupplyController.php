@@ -48,17 +48,20 @@ class SupplyController extends Controller
     /**
      * Display the specified resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function show($search)
     {
         $suppliers = Supplier::where('id', 'LIKE', "%{$search}%")
             ->orWhere('name', 'LIKE', "%{$search}%")
-            ->first()
-            ->supplies;
-        $suppliers->makeHidden(['created_at', 'updated_at'] );
+            ->first();
 
-        return response()->json($suppliers);
+        if($suppliers){
+            $suppliers = $suppliers->supplies->makeHidden(['created_at', 'updated_at'] );
+
+            return response()->json($suppliers);
+        }
+        return response()->json(['msg' => 'Supplier not found.']);
     }
 
     /**
@@ -81,30 +84,38 @@ class SupplyController extends Controller
     public function update(Request $request, $id)
     {
         $supply = Supply::find($id)->makeHidden(['id', 'supplier_id', 'created_at', 'updated_at']);
+        $supply_params = $supply->getAttributes();
+        unset($supply_params['condition_id'], $supply_params['category_id']);
         $parameters = $request->query();
-        $column_err = [];
+        $column_err = ['msg' => []];
 
-        foreach($parameters as $key => $param){
+        foreach($parameters as $param => $value) {
 
-            if(Schema::hasColumn('supplies', $key)){
-                if( $key == 'condition_id' && !Condition::find($param) ) {
-                    array_push($column_err, $key.': '.$param);
+            if ($param == 'condition_id') {
+                if(Condition::find($value)){
+                    $supply->update(['condition_id' => $value]);
+                    array_push($column_err['msg'], 'Updated condition with value '."'$value'");
                     continue;
                 }
-                if( $key == 'category_id' && !Category::find($param) ) {
-                    array_push($column_err, $key.': '.$param);
+                array_push($column_err['msg'], "Something's wrong with value"." '$value' ".'of param '."'$param'");
+                continue;
+            }
+            if ($param == 'category_id') {
+                if(Category::find($value)){
+                    $supply->update(['category_id' => $value]);
+                    array_push($column_err['msg'], 'Updated category with value of '."'$value'");
                     continue;
-                    }
-                $supply->update([$key => $param]);
-            } else {
-                array_push($column_err, $key);
+                }
+                array_push($column_err['msg'], "Something's wrong with value"." '$value' ".'of param '."'$param'");
+                continue;
+            }
+            if (array_key_exists($param, $supply_params)) {
+                $supply->update([$param => $value]);
+                array_push($column_err['msg'], 'Updated '."'$param'");
             }
         }
-        if(empty($column_err)){
-            return response()->json(['msg' => 'Product updated!']);
-        }
-        return response()->json(['msg' => ['Invalid parameters or value' => $column_err]]);
 
+        return response()->json([$column_err]);
     }
 
     /**

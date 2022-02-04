@@ -12,10 +12,4 @@ class Condition extends Model
     protected $fillable = [
         'name'
     ];
-
-    public function supplies()
-    {
-        //return $this->belongsToMany('User');
-        return $this->belongsToMany('Supply');
-    }
 }
