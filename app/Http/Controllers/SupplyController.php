@@ -143,7 +143,7 @@ class SupplyController extends Controller
 
         // Make file name
         $current_date = date('_Y_m_d_H_i_s');
-        $supplier_name = preg_replace('/\s+/', '_', $data->name);
+        $supplier_name = preg_replace('/[^a-zA-Z0-9\s]|[\s+]/', '_', $data->name);
         $filename = $supplier_name.$current_date.'.csv';
 
         // Header
@@ -155,15 +155,8 @@ class SupplyController extends Controller
             "Expires"             => "0"
         );
 
-        $columns = array('days_valid', 'priority', 'part_number', 'part_desc', 'quantity',
-            'price', 'condition', 'category');
-
         // Format data
         $data = $data->supplies;
-
-
-        $columns = array_flip(['days_valid', 'priority', 'part_number', 'part_desc', 'quantity',
-            'price', 'condition', 'category']);
 
         ///////////// Open file ////////////////
         $callback = function() use ($filename, $data) {
